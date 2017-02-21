@@ -1,0 +1,28 @@
+#获取当前时间戳
+select CURRENT_TIMESTAMP(),NOW(),CURDATE(),CURRENT_DATE(),CURTIME(),CURRENT_TIME() 
+2016-12-27 10:33:18 2016-12-27 10:33:18 2016-12-27 2016-12-27 10:33:18 10:33:18
+
+
+#提取date各个字段
+select date(NOW()),year(NOW()),month(NOW()),day(NOW()),YEARWEEK(NOW()) 
+2016-12-27 2016 12 27 201652
+
+
+#提取time各个字段
+select time(NOW()),hour(NOW()),minute(NOW()),second(NOW()) 
+10:35:17 10 35 17
+
+
+#获取当前或者某一时间的unix时间戳
+select unix_timestamp(NOW()),from_unixtime(unix_timestamp(NOW()), "%Y-%m-%d %T"),NOW() 
+1482806137 2016-12-27 10:35:37 2016-12-27 10:35:37
+
+
+#格式化时间串和格式化时间戳
+select date_format(now(), '%Y-%m-%d %T'),time_format(now(), '%H:%i:%s'),NOW() 
+2016-12-27 10:35:57 10:35:57 2016-12-27 10:35:57
+
+
+#日期计算
+select date_add(now(), interval 5 DAY),date_sub(now(), interval 5 DAY),datediff(now(), now() + interval 5 day) 
+2017-01-01 10:36:14 2016-12-22 10:36:14 -5
