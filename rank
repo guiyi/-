@@ -1,0 +1,50 @@
+SELECT
+	*,
+IF (
+	@de > ear,
+	@rank :=@rank +@num + 1,
+	@rank
+) rank,
+
+IF (
+	@de = ear,
+	@num :=@num + 1,
+	@num := 0
+),
+ @de := ear
+FROM
+	(
+		(
+			SELECT
+				zone_id,
+				u. NAME,
+				sum(
+					(share_price * goods_num) - amount
+				) AS ear ,@de := 0,
+				@rank := 1,
+				@num := 0
+			FROM
+				shop_order_XXX AS de
+			JOIN corps u ON de.zone_id = u.id
+			AND de. STATUS > 1
+			AND de.real_amount > 0
+			GROUP BY
+				zone_id
+			ORDER BY
+				ear DESC
+		) AS a,
+		(
+			SELECT
+				count(DISTINCT(zone_id)) AS alls
+			FROM
+				shop_order_XXX
+			WHERE
+				STATUS > 1
+			AND real_amount > 0
+		) AS b
+	)
+GROUP BY
+	a.zone_id,
+	a.ear
+ORDER BY
+	ear DESC
