@@ -1,0 +1,20 @@
+UPDATE shop_order_XXX a
+INNER JOIN (
+	SELECT
+		id
+	FROM
+		shop_order_XXX
+	WHERE
+		DATE_SUB(now(), INTERVAL 15 DAY) >= from_unixtime(
+			send_time,
+			"%Y-%m-%d %H:%i:%d"
+		)
+	AND STATUS = 3
+	LIMIT 10
+) c
+SET a. STATUS = 10,
+ completion_time = unix_timestamp(
+	DATE_SUB(now(), INTERVAL 15 DAY)
+)
+WHERE
+	a.id = c.id
