@@ -1,0 +1,147 @@
+INSERT INTO tj_order (
+	id,
+	date,
+	allOrder,
+	allSale,
+	ptEar,
+	zd1,
+	zd2,
+	zd3,
+	zd4,
+	zd5,
+	zd6,
+	zd7,
+	zd8,
+	newGuy,
+	payGuy,
+	activeGuy,
+	allGuy
+) SELECT
+	NULL,
+	CURDATE(),
+	a.allOrder,
+	a.allSale,
+	a.ptEar,
+	a.zd1,
+	a.zd2,
+	a.zd3,
+	a.zd4,
+	a.zd5,
+	a.zd6,
+	a.zd7,
+	a.zd8,
+	b.newGuy,
+	a.payGuy,
+	c.activeGuy,
+	d.allGuy
+FROM
+	(
+		(
+			SELECT
+				count(1) AS allOrder,
+				sum(goods_num * price) AS allSale,
+				sum(
+					(price - cost_price) * goods_num
+				) * 0.275 AS ptear,
+
+			IF (
+				(zone_id = 1),
+				sum(
+					(price - cost_price) * goods_num
+				) * 0.275,
+				0
+			) AS zd1,
+
+		IF (
+			(zone_id = 2),
+			sum(
+				(price - cost_price) * goods_num
+			) * 0.275,
+			0
+		) AS zd2,
+
+	IF (
+		(zone_id = 3),
+		sum(
+			(price - cost_price) * goods_num
+		) * 0.275,
+		0
+	) AS zd3,
+
+IF (
+	(zone_id = 4),
+	sum(
+		(price - cost_price) * goods_num
+	) * 0.275,
+	0
+) AS zd4,
+
+IF (
+	(zone_id = 5),
+	sum(
+		(price - cost_price) * goods_num
+	) * 0.275,
+	0
+) AS zd5,
+
+IF (
+	(zone_id = 6),
+	sum(
+		(price - cost_price) * goods_num
+	) * 0.275,
+	0
+) AS zd6,
+
+IF (
+	(zone_id = 7),
+	sum(
+		(price - cost_price) * goods_num
+	) * 0.275,
+	0
+) AS zd7,
+
+IF (
+	(zone_id = 8),
+	sum(
+		(price - cost_price) * goods_num
+	) * 0.275,
+	0
+) AS zd8,
+ COUNT(DISTINCT share_uid) AS payGuy
+FROM
+	shop_order_XXX
+WHERE
+	STATUS > 1
+AND real_amount > 0
+AND FROM_UNIXTIME(pay_time, '%Y-%m-%d') = CURDATE()
+		) AS a
+		JOIN (
+			SELECT
+				count(1) AS newGuy
+			FROM
+				USER
+			WHERE
+				FROM_UNIXTIME(regtime, '%Y-%m-%d') = CURDATE()
+			AND user_status = 1
+		) AS b
+		JOIN (
+			SELECT
+				count(1) AS activeGuy
+			FROM
+				USER
+			WHERE
+				FROM_UNIXTIME(
+					first_logined_time,
+					'%Y-%m-%d'
+				) = CURDATE()
+			AND user_status = 1
+		) AS c
+		JOIN (
+			SELECT
+				count(1) AS allGuy
+			FROM
+				USER
+			WHERE
+				user_status = 1
+		) AS d
+	)
