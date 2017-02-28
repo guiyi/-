@@ -1,0 +1,194 @@
+#订单表 插入 支付主订单
+
+TRUNCATE TABLE order_pay 
+
+INSERT INTO order_pay (
+	zone_id,
+	wid,
+	share_uid,
+	order_id,
+	order_no,
+	pay_order_no,
+	STATUS,
+	prepay_id,
+	pay_amount,
+	pay_real_amount,
+	pay_date,
+	pay_time
+) SELECT
+	zone_id,
+	wid,
+	share_uid,
+	id,
+	order_no,
+	order_no AS pay_order_no,
+	STATUS,
+	prepay_id,
+	amount,
+	real_amount,
+	pay_date,
+	pay_time
+FROM
+	order
+WHERE	
+#`status` > 1
+  
+  
+####################################################################
+
+
+#订单表 插入 次主订单表
+TRUNCATE TABLE sec_order 
+
+INSERT INTO sec_order (
+	id,
+	wid,
+	share_uid,
+	pay_order_id,
+	pay_order_no,
+	order_no,
+	brand_id,
+	brand_name,
+	zone_id,
+	address_id,
+	NAME,
+	phone,
+	area,
+	zip_code,
+	address,
+	pay_type,
+	pay_uid,
+	payable_freight,
+	remark,
+	goods_num,
+	share_price,
+	price,
+	cost_price,
+	coupons_price,
+	coupons_log_id,
+	user_amount,
+	amount,
+	real_amount,
+	c_amount,
+	logistics_number,
+	logistics_company,
+	sendpay_time,
+	create_time,
+	pay_date,
+	coupon_time,
+	pay_time,
+	send_time,
+	completion_time,
+	prepay_id,
+	qrcode,
+	qrcodetime,
+	coupon,
+	out_trade_no,
+	invoice_status,
+	STATUS,
+	invoice_type,
+	invoice_content
+) SELECT
+	id,
+	wid,
+	share_uid,
+	id AS pay_order_id,
+	order_no AS pay_order_no,
+	order_no,
+	brand_id,
+	brand_name,
+	zone_id,
+	address_id,
+	NAME,
+	phone,
+	area,
+	zip_code,
+	address,
+	pay_type,
+	pay_uid,
+	payable_freight,
+	remark,
+	goods_num,
+	share_price,
+	price,
+	cost_price,
+	coupons_price,
+	coupons_log_id,
+	user_amount,
+	amount,
+	real_amount,
+	share_price * goods_num AS c_amount,
+	logistics_number,
+	logistics_company,
+	sendpay_time,
+	create_time,
+	pay_date,
+	coupon_time,
+	pay_time,
+	send_time,
+	completion_time,
+	prepay_id,
+	qrcode,
+	qrcodetime,
+	coupon,
+	out_trade_no,
+	invoice_status,
+	STATUS ,
+	invoice_type,
+	invoice_content
+FROM
+	order
+#where status>1
+
+
+####################################################################
+
+
+#订单表 更新 到订单商品表
+TRUNCATE TABLE order_good1 
+
+INSERT INTO order_good1 (
+	id,
+	order_id,
+	order_no,
+	brand_id,
+	good_id,
+	market_price,
+	share_price,
+	price,
+	cost_price,
+	goods_price,
+	goods_num,
+	goods_amount,
+	goods_name,
+	goods_image,
+	goods_attribute,
+	attribute_id,
+	good_number,
+	brand_number
+) SELECT
+	a.id,
+	a.order_id,
+	b.order_no,
+	a.brand_id,
+	a.good_id,
+	c.market_price,
+	d.price,
+	d.price2,
+	d.cost_price,
+	a.goods_price,
+	a.goods_num,
+	a.goods_amount,
+	a.goods_name,
+	a.goods_image,
+	a.goods_attribute,
+	a.attribute_id,
+	d.good_num,
+	e.brand_number
+FROM
+	order_good a
+LEFT JOIN order b ON a.order_id = b.id
+LEFT JOIN good c ON a.good_id = c.id
+LEFT JOIN good_attribute d ON a.attribute_id = d.id
+LEFT JOIN brand e ON a.brand_id = e.id
+#where  b. STATUS > 1
