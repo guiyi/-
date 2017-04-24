@@ -1,0 +1,12 @@
+SELECT
+	wid,
+	count(id) AS buytimes
+FROM
+	shop_order_user
+WHERE
+	create_time >= 1483228800
+GROUP BY
+	wid
+ORDER BY
+	buytimes DESC
+LIMIT 10
