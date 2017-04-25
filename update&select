@@ -1,0 +1,17 @@
+update shop_corps A INNER JOIN  (SELECT
+	u.zone_id,
+	#count(u.id) AS allPeople,
+	count(s.id) As allOrder,
+  sum(s.real_amount) as allAmount,
+	sum(s.goods_num) as allGoodsNum
+FROM
+	shop_order_user as s
+JOIN  user  as u
+on s.wid = u.wid
+GROUP BY
+	u.zone_id) as B ON  A.id=B.zone_id
+SET A.amount=B.allAmount,A.goods_num=B.allGoodsNum,A.order_num=B.allOrder
+
+
+#UPDATE A SET A1 = B1, A2 = B2, A3 = B3 FROM A, B WHERE A.ID = B.ID
+#UPDATE friends INNER JOIN users ON friends.friendid=users.userid SET friends.friendname=users.username
