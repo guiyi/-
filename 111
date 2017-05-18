@@ -1,0 +1,18 @@
+
+SELECT t1.prod_id, t2.prod_name, t1.cat1_name, t1.cat2_name, t1.cat3_name, sum(t1.ACC_SALE), sum(t1.ACT_SALE), sum(t1.PM_NUM), sum(t1.PM_NUM*MOVE_AVG_PRC), COUNT(DISTINCT CONCAT(t1.user_id,t1.user_name)) , sum(t1.ACC_SALE*t1.COMSI_RET) FROM dw.fact_sell_order t1 LEFT JOIN dw.dim_item t2 ON t1.prod_id = t2.prod_id WHERE t1.PAY_DATE &gt;= '2015-01-01' AND t1.PAY_DATE &lt;= '2015-12-31' AND t1.VALID_ORDR = '1' GROUP BY t1.prod_id, t2.prod_name, t1.cat1_name, t1.cat2_name, t1.cat3_name
+
+
+SELECT YEAR (t1.PAY_DATE), MONTH (t1.PAY_DATE), DATE_FORMAT(PAY_DATE, '%u') WEEK FROM dw.fact_sell_order t1 WHERE valid_ordr = '1' AND pay_date &gt;= '2016-01-01' AND pay_date &lt; '2016-01-10'
+
+
+
+#2库 SELECT DISTINCT t1.VENDER_ID AS MRCHNT_ID, t1.NICK_NAME, t1.BUSINESS_NAME AS MRCHNT_NAME, '9' AS MRCHNT_TYPE, -- 第三方 t1.OPERATOR_DATE, t1.STATUS, t1.VENDER_TYPE, t1.FREEZE_STATUS FROM pop.pop_vender t1 WHERE t1.VENDER_ID NOT IN (SELECT DISTINCT VENDER_ID FROM b2c.BTOC_VENDER) UNION SELECT DISTINCT T2.VENDER_ID AS MRCHNT_ID, T2.NICK_NAME, T2.BUSINESS_NAME AS MRCHNT_NAME, T2.BUSINESS_TYPE AS MRCHNT_TYPE, T2.UPDATE_TIME AS OPERATOR_DATE, T2.STATUS, '0' VENDER_TYPE, -- B2C 商家 '0' FREEZE_STATUS FROM b2c.BTOC_VENDER t2
+
+
+商品数量、实际销售额、含税成本、账面销售额、一级目录、二级目录、三级目录、商品名称、商品编码、订单来源、支付平台类型、供应商名称 hive -e "select month(DLVYDT),sum(cnt),sum(ACT_SALE),sum(COST_HASTAX),sum(AMT_SALE), cat1,cat2,cat3,pcode,pname,srcname,PAYPLTYPENAME,SUPNAME from stat_db.soitem_all_rpt where DLVYDT&gt;='2015-11-01' and DLVYDT&lt;'2016-02-01' group by month(DLVYDT), cat1,cat2,cat3,pcode,pname,srcname,PAYPLTYPENAME,SUPNAME ;"&gt;/home/hongdai.zou/fin.txt
+
+
+SELECT weekofyear('2016-01-31'), '2016-01-25~2016-01-31', t1.CAT1_NAME, sum( IF ( t8.ORDR_SRCE_NAME NOT IN ( '天猫下单', '1mall下单', '京东下单' ), t1.ACT_SALE, 0 ) ) gw, sum( IF ( t8.ORDR_SRCE_NAME = '天猫下单', t1.ACT_SALE, 0 ) ) tmall, sum( IF ( t8.ORDR_SRCE_NAME = '1mall下单', t1.ACT_SALE, 0 ) ) 1mall, sum( IF ( t8.ORDR_SRCE_NAME = '京东下单', t1.ACT_SALE, 0 ) ) jd FROM dw.fact_sell_order t1 LEFT JOIN dw.dim_ordr_srce t8 ON t1.ORDR_SRCE_ID = t8.ORDR_SRCE_ID WHERE t1.PAY_DATE = '2016-01-25' AND t1.PAY_DATE &lt;= '2016-01-31' AND t1.VALID_ORDR = '1' GROUP BY t1.CAT1_NAME ORDER BY t1.CAT1_NAME;
+
+
+select t1.PAY_DATE,t1.CAT1_NAME,t1.CAT2_NAME,t1.CAT3_NAME, sum(if(t8.ORDR_SRCE_NAME NOT in('天猫下单','1mall下单','京东下单'),t1.ACC_SALE,0)) gw, sum(if(t8.ORDR_SRCE_NAME='天猫下单',t1.ACC_SALE,0)) tmall , sum(if(t8.ORDR_SRCE_NAME='1mall下单',t1.ACC_SALE,0)) 1mall , sum(if(t8.ORDR_SRCE_NAME='京东下单',t1.ACC_SALE,0)) jd from dw.fact_sell_order t1 left join dw.dim_ordr_srce t8 on t1.ORDR_SRCE_ID = t8.ORDR_SRCE_ID where t1.PAY_DATE&gt;='2016-01-01' and t1.PAY_DATE&lt;='2016-01-31' and t1.VALID_ORDR='1' group by t1.CAT1_NAME,t1.CAT2_NAME,t1.CAT3_NAME order by t1.PAY_DATE,t1.CAT1_NAME,t1.CAT2_NAME,t1.CAT3_NAME;
