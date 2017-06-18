@@ -29,6 +29,18 @@ Max_data_length: 281474976710655
 31 rows in set (0.00 sec)
 
 
+show variables like 'datadir';
+可查看真正的data目录
+
+
 
 MySQL存储引擎InnoDB与Myisam的六大区别
 https://my.oschina.net/junn/blog/183341
+
+
+http://blog.csdn.net/leshami/article/details/39779225
+MySQL 通用查询日志(General Query Log)
+
+
+锁
+http://www.cnblogs.com/luyucheng/category/920876.html
