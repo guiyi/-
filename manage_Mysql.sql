@@ -27,3 +27,8 @@ Max_data_length: 281474976710655
  Create_options: 
         Comment: Users and global privileges
 31 rows in set (0.00 sec)
+
+
+
+MySQL存储引擎InnoDB与Myisam的六大区别
+https://my.oschina.net/junn/blog/183341
