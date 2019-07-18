@@ -1,3 +1,5 @@
+#客户名	客户邮箱	Reward Points	R值	F值	M值	运费
+
 select 
 #* 
 t2.firstname,t2.lastname,t1.all_reward_points ,t3.*,t2.all_shipping_fee
