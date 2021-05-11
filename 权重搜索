@@ -1,0 +1,183 @@
+SELECT
+	p.product_id ,
+
+IF(
+	isnull(
+		(
+			SELECT
+				NAME
+			FROM
+				product_description pd1
+			WHERE
+				NAME REGEXP 'ph sensor'
+			AND pd1.product_id = p.product_id
+		)
+	) != 1 ,
+	1 * 0.45 ,
+	0
+) p_name ,
+
+IF(
+	isnull(
+		(
+			SELECT
+				tag
+			FROM
+				product_description pd2
+			WHERE
+				tag REGEXP 'ph sensor'
+			AND pd2.product_id = p.product_id
+		)
+	) != 1 ,
+	1 * 0.35 ,
+	0
+) p_tag ,
+
+IF(
+	find_in_set(
+		'ph sensor' ,
+		(
+			SELECT
+				GROUP_CONCAT(lower(cd. NAME)) AS total
+			FROM
+				product_to_category p2c
+			LEFT JOIN category_description cd ON p2c.category_id = cd.category_id
+			WHERE
+				p2c.product_id = p.product_id
+			AND p2c. STATUS = 0
+		)
+	) >= 1 ,
+	1 * 0.07 ,
+	0
+) p_category ,
+
+IF(
+	find_in_set(
+		'ph sensor' ,
+		(
+			SELECT
+				GROUP_CONCAT(lower(cd. NAME)) AS total
+			FROM
+				product_to_category p2c
+			LEFT JOIN category_description cd ON p2c.category_id = cd.category_id
+			WHERE
+				p2c.product_id = p.product_id
+			AND p2c. STATUS = 1
+		)
+	) >= 1 ,
+	1 * 0.07 ,
+	0
+) p_topic ,
+
+IF(
+	find_in_set('ph sensor' , p.model) >= 1 ,
+	1 * 0.06 ,
+	0
+) p_sku ,
+
+IF(
+	isnull(
+		(
+			SELECT
+				NAME
+			FROM
+				product_description pd1
+			WHERE
+				NAME REGEXP 'ph sensor'
+			AND pd1.product_id = p.product_id
+		)
+	) != 1 ,
+	1 * 0.45 ,
+	0
+) +
+IF(
+	isnull(
+		(
+			SELECT
+				tag
+			FROM
+				product_description pd2
+			WHERE
+				tag REGEXP 'ph sensor'
+			AND pd2.product_id = p.product_id
+		)
+	) != 1 ,
+	1 * 0.35 ,
+	0
+) +
+IF(
+	find_in_set(
+		'ph sensor' ,
+		(
+			SELECT
+				GROUP_CONCAT(lower(cd. NAME)) AS total
+			FROM
+				product_to_category p2c
+			LEFT JOIN category_description cd ON p2c.category_id = cd.category_id
+			WHERE
+				p2c.product_id = p.product_id
+			AND p2c. STATUS = 0
+		)
+	) >= 1 ,
+	1 * 0.07 ,
+	0
+) +
+IF(
+	find_in_set(
+		'ph sensor' ,
+		(
+			SELECT
+				GROUP_CONCAT(lower(cd. NAME)) AS total
+			FROM
+				product_to_category p2c
+			LEFT JOIN category_description cd ON p2c.category_id = cd.category_id
+			WHERE
+				p2c.product_id = p.product_id
+			AND p2c. STATUS = 1
+		)
+	) >= 1 ,
+	1 * 0.07 ,
+	0
+) +
+IF(
+	find_in_set('ph sensor' , p.model) >= 1 ,
+	1 * 0.06 ,
+	0
+) weight_sort ,
+(
+	SELECT
+		count(1) sales
+	FROM
+		order_product op
+	RIGHT JOIN `order` o ON o.order_id = op.order_id
+	WHERE
+		o.order_status_id IN(3 , 5 , 14 , 16 , 17 , 18)
+	AND o.customer_group_id = 8
+	AND op.product_id = p.product_id
+	AND o.date_added > DATE_SUB(CURDATE() , INTERVAL 3 MONTH)
+) sale_sort
+FROM
+	product p
+LEFT JOIN product_description pd ON(p.product_id = pd.product_id)
+LEFT JOIN product_to_store p2s ON(p.product_id = p2s.product_id)
+WHERE
+	pd.language_id = '1'
+AND p. STATUS = '1'
+AND p.date_available <= NOW()
+AND p2s.store_id = '0'
+AND(
+	pd. NAME LIKE '%ph%'
+	AND pd. NAME LIKE '%sensor%'
+	OR pd.tag LIKE '%ph%'
+	AND pd.tag LIKE '%sensor%'
+	OR LCASE(p.model) LIKE '%ph sensor%'
+	OR LCASE(p.sku) = 'ph sensor'
+)
+GROUP BY
+	p.product_id
+ORDER BY
+	FIELD(stock_status_id , 10) ,
+	weight_sort DESC ,
+	p.price DESC
+LIMIT 0 ,
+ 20
