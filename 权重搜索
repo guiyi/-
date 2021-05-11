@@ -1,3 +1,100 @@
+#单个词搜索
+
+
+SELECT
+	p.product_id ,
+
+IF(
+	find_in_set(
+		'ph' ,
+		REPLACE(lower(pd. NAME) , ' ' , ',')
+	) >= 1 ,
+	1 * 0.45 ,
+	0
+) +
+IF(
+	find_in_set(
+		'ph' ,
+		REPLACE(lower(pd.tag) , ', ' , ',')
+	) >= 1 ,
+	1 * 0.35 ,
+	0
+) +
+IF(
+	find_in_set(
+		'ph' ,
+		(
+			SELECT
+				GROUP_CONCAT(lower(cd. NAME)) AS total
+			FROM
+				product_to_category p2c
+			LEFT JOIN category_description cd ON p2c.category_id = cd.category_id
+			WHERE
+				p2c.product_id = p.product_id
+			AND p2c. STATUS = 0
+		)
+	) >= 1 ,
+	1 * 0.07 ,
+	0
+) +
+IF(
+	find_in_set(
+		'ph' ,
+		(
+			SELECT
+				GROUP_CONCAT(lower(cd. NAME)) AS total
+			FROM
+				product_to_category p2c
+			LEFT JOIN category_description cd ON p2c.category_id = cd.category_id
+			WHERE
+				p2c.product_id = p.product_id
+			AND p2c. STATUS = 1
+		)
+	) >= 1 ,
+	1 * 0.07 ,
+	0
+) +
+IF(
+	find_in_set('ph' , p.model) >= 1 ,
+	1 * 0.06 ,
+	0
+) weight_sort ,
+(
+	SELECT
+		count(1) sales
+	FROM
+		order_product op
+	RIGHT JOIN `order` o ON o.order_id = op.order_id
+	WHERE
+		o.order_status_id IN(3 , 5 , 14 , 16 , 17 , 18)
+	AND o.customer_group_id = 8
+	AND op.product_id = p.product_id
+	AND o.date_added > DATE_SUB(CURDATE() , INTERVAL 3 MONTH)
+) sale_sort
+FROM
+	product p
+LEFT JOIN product_description pd ON(p.product_id = pd.product_id)
+LEFT JOIN product_to_store p2s ON(p.product_id = p2s.product_id)
+WHERE
+	pd.language_id = '1'
+AND p. STATUS = '1'
+AND p.date_available <= NOW()
+AND p2s.store_id = '0'
+AND(
+	pd. NAME LIKE '%ph%'
+	OR pd.tag LIKE '%ph%'
+	OR LCASE(p.model) LIKE '%ph%'
+	OR LCASE(p.sku) = 'ph'
+)
+GROUP BY
+	p.product_id
+ORDER BY
+	FIELD(stock_status_id , 10) ,
+	weight_sort DESC ,
+	p.price DESC
+LIMIT 0 ,
+ 20
+#多词搜索
 SELECT
 	p.product_id ,
 
