@@ -1,0 +1,83 @@
+SELECT
+	p.product_id ,
+	(
+
+		IF(
+			(
+				SELECT
+					sum(op.quantity) sales
+				FROM
+					order_product op
+				RIGHT JOIN `order` o ON o.order_id = op.order_id
+				WHERE
+					o.order_status_id IN(3 , 5 , 14 , 16 , 17 , 18)
+				AND o.customer_group_id = 8
+				AND op.product_id = p.product_id
+				AND o.date_added > DATE_SUB(CURDATE() , INTERVAL 3 MONTH)
+			) > 0 ,
+			(
+				SELECT
+					sum(op.quantity) sales
+				FROM
+					order_product op
+				RIGHT JOIN `order` o ON o.order_id = op.order_id
+				WHERE
+					o.order_status_id IN(3 , 5 , 14 , 16 , 17 , 18)
+				AND op.product_id = p.product_id
+				AND o.date_added > DATE_SUB(CURDATE() , INTERVAL 3 MONTH)
+			) * 0.3 ,
+			0
+		) +
+		IF(
+			(
+				SELECT
+					sum(dlpv.ip_view) all_ip_view
+				FROM
+					df_log_product_view dlpv
+				WHERE
+					dlpv.product_id = p.product_id
+				AND dlpv.date_added > DATE_SUB(CURDATE() , INTERVAL 3 MONTH)
+			) > 0 ,
+			(
+				SELECT
+					sum(dlpv.ip_view) all_ip_view
+				FROM
+					df_log_product_view dlpv
+				WHERE
+					dlpv.product_id = p.product_id
+				AND dlpv.date_added > DATE_SUB(CURDATE() , INTERVAL 3 MONTH)
+			) * 0.7 ,
+			0
+		)
+	) default_sort ,
+	(
+		SELECT
+			sum(op.quantity) sales
+		FROM
+			order_product op
+		RIGHT JOIN `order` o ON o.order_id = op.order_id
+		WHERE
+			o.order_status_id IN(3 , 5 , 14 , 16 , 17 , 18)
+		AND o.customer_group_id = 8
+		AND op.product_id = p.product_id
+		AND o.date_added > DATE_SUB(CURDATE() , INTERVAL 3 MONTH)
+	) sale_sort
+FROM
+	product_to_category p2c
+LEFT JOIN product p ON(p2c.product_id = p.product_id)
+LEFT JOIN product_description pd ON(p.product_id = pd.product_id)
+LEFT JOIN product_to_store p2s ON(p.product_id = p2s.product_id)
+WHERE
+	pd.language_id = '1'
+AND p. STATUS = '1'
+AND p.date_available <= NOW()
+AND p2s.store_id = '0'
+AND p2c.category_id = '184'
+GROUP BY
+	p.product_id
+ORDER BY
+	FIELD(stock_status_id , 10) ,
+	default_sort DESC ,
+	p.date_added DESC
+LIMIT 0 ,
+ 20
