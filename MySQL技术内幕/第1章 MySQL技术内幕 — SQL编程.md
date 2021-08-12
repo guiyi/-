@@ -60,8 +60,7 @@
   
 
   
-
-  ![image-20210811172253205](/Users/adair/Library/Application Support/typora-user-images/image-20210811172253205.png)
+![3691628733224_ pic_hd](https://user-images.githubusercontent.com/1744922/129126771-ada4ed49-f679-4f66-adfe-aaf0260c6031.jpg)
 
 
 **必须先要了解进行SQL编程的对象类型，即要开发的数据库应用是哪种类型.**
